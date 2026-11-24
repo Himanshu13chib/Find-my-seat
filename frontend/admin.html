@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIET JAMMU – Seating Arrangement Management</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="images/miet_logo.jpg" />
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo-wrap">
+        <img src="images/miet_logo.jpg" alt="MIET Logo" class="login-brand-logo" />
+        <h1 class="login-title">MIET JAMMU</h1>
+        <p class="login-subtitle">Exam Cell • Seating Management Portal</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="loginUsername">Admin Username</label>
+          <div class="input-wrap">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="loginUsername" class="form-input" placeholder="Enter username" autocomplete="username" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrap">
+            <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" autocomplete="current-password" required />
+            <button type="button" class="pw-toggle-btn" id="pwToggle" title="Toggle password visibility">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="loginError" class="login-error hidden"></div>
+        <button type="submit" class="btn-signin" id="loginBtn">Sign In to Dashboard</button>
+      </form>
+      <div class="login-footer-hint">Default Credentials: <code>admin</code> / <code>admin123</code></div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD WRAPPER -->
+  <div id="dashboard" class="admin-wrapper hidden">
+
+    <!-- Left Sidebar (Deep Navy matching mockup) -->
+    <aside class="sidebar" id="sidebarEl">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <img src="images/miet_logo.jpg" alt="MIET Logo" class="sidebar-logo-img" />
+          <span class="sidebar-brand-name">MIET JAMMU</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#" class="sidebar-item active" data-section="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="sidebar-item" data-section="upload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Upload Arrangement</span>
+          </a>
+          <a href="#" class="sidebar-item" data-section="manage">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Manage Exams</span>
+          </a>
+          <a href="#" class="sidebar-item" data-section="reports">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>View Reports</span>
+          </a>
+          <a href="#" class="sidebar-item" data-section="settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+          <a href="#" class="sidebar-item" id="sidebarLogout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Logout</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Sidebar Motto Footer -->
+      <div class="sidebar-motto">
+        <em>Excellence in Education, Commitment to Nation</em>
+      </div>
+    </aside>
+
+    <!-- Main Content Right Area -->
+    <div class="main-body">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button type="button" class="btn-hamburger" id="sidebarToggle" title="Toggle Sidebar" aria-label="Open navigation menu" aria-controls="sidebarEl" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+
+        <div class="topbar-right">
+          <div class="admin-profile-pill" id="adminProfileBtn">
+            <div class="avatar-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <span class="admin-name" id="adminName">Admin</span>
+            <svg class="chevron-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+          <div class="admin-dropdown-menu hidden" id="adminDropdownMenu">
+            <a href="/" target="_blank" class="admin-dropdown-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              View Student Portal
+            </a>
+            <a href="#" class="admin-dropdown-link" id="dropChangePw">Change Password</a>
+            <hr>
+            <a href="#" class="admin-dropdown-link text-danger" id="dropLogout">Logout</a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Toast Popup -->
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- ==============================================
+           SECTION 1: DASHBOARD (Exact layout from mockup)
+      =============================================== -->
+      <section id="section-dashboard" class="content-section active">
+        
+        <!-- Header Banner -->
+        <div class="page-header">
+          <h1 class="page-title">Seating Arrangement Management</h1>
+          <p class="page-subtitle">Upload the seating arrangement file and publish it for students to view their exam seat.</p>
+        </div>
+
+        <!-- 3 Stat Cards in a row -->
+        <div class="stats-row">
+          
+          <!-- Stat 1: Total Students -->
+          <div class="stat-box">
+            <div class="stat-icon-wrap stat-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Total Students</span>
+              <span class="stat-number" id="dashTotalStudents">0</span>
+            </div>
+          </div>
+
+          <!-- Stat 2: Total Rooms -->
+          <div class="stat-box">
+            <div class="stat-icon-wrap stat-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Total Rooms</span>
+              <span class="stat-number" id="dashTotalRooms">0</span>
+            </div>
+          </div>
+
+          <!-- Stat 3: Unassigned Students -->
+          <div class="stat-box">
+            <div class="stat-icon-wrap stat-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="stat-data">
+              <span class="stat-label">Unassigned Students</span>
+              <span class="stat-number" id="dashUnassigned">0</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Two-Column Side-by-Side Management Box (from mockup) -->
+        <div class="upload-management-grid">
+          
+          <!-- Left Box: Upload Seating Arrangement File -->
+          <div class="upload-panel card">
+            
+            <form id="dashUploadForm">
+              
+              <div class="form-inputs-row">
+                <div class="form-field">
+                  <label for="dashExamName">Examination Title <span class="required">*</span></label>
+                  <input type="text" id="dashExamName" class="form-input" placeholder="e.g. End Semester Examinations Nov 2024" required />
+                </div>
+                <div class="form-field">
+                  <label for="dashExamDate">Exam Date</label>
+                  <input type="date" id="dashExamDate" class="form-input" />
+                </div>
+              </div>
+
+              <!-- Dashed Upload Zone -->
+              <div class="dashed-upload-zone" id="dashDropzone">
+                <div class="cloud-icon-circle">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                    <polyline points="12 13 12 7 9 10"/><polyline points="12 7 15 10"/>
+                  </svg>
+                </div>
+                <h3 class="zone-title">Upload Seating Arrangement File</h3>
+                <p class="zone-desc">Drag and drop your Excel or CSV file here, or <span class="browse-link" id="dashBrowseLink">choose a file</span></p>
+                
+                <input type="file" id="dashFileInput" accept=".xlsx,.xls,.csv" class="hidden-file-input" />
+                
+                <button type="button" class="btn-choose-file" id="dashChooseFileBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  Choose File
+                </button>
+
+                <div class="zone-file-type">Supports: .xlsx, .xls, .csv</div>
+
+                <div id="dashFileSelected" class="file-chosen-badge hidden">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                  <span id="dashFileNameText">selected_file.csv</span>
+                  <button type="button" id="dashFileClear" class="btn-clear-file">✕</button>
+                </div>
+
+                <div class="template-download-link">
+                  <button type="button" class="btn-template-link" id="dashDownloadTemplate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download Blank CSV Template
+                  </button>
+                </div>
+
+              </div>
+
+            </form>
+
+          </div>
+
+          <!-- Right Box: File Preview & Publish Action -->
+          <div class="preview-panel card">
+            
+            <div class="preview-panel-header">
+              <h3 class="panel-heading">File Preview</h3>
+              <div id="parseStatusBadge" class="status-badge-ready hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>File Parsed Successfully</span>
+              </div>
+            </div>
+
+            <!-- Preview Table Area -->
+            <div class="preview-table-wrap" id="previewTableWrap">
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Roll No</th>
+                    <th>Block</th>
+                    <th>Floor</th>
+                    <th>Room</th>
+                    <th>Row</th>
+                    <th>Desk</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTableBody">
+                  <tr>
+                    <td colspan="7" class="empty-state">Upload a seating file to preview its records.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Upload Progress Bar (hidden by default) -->
+            <div id="dashUploadProgress" class="upload-progress-bar-wrap hidden">
+              <div class="progress-track"><div class="progress-bar-fill" id="dashProgFill"></div></div>
+              <span id="dashProgText">Publishing arrangement…</span>
+            </div>
+
+            <!-- Bottom Publish Action Button -->
+            <button type="button" class="btn-publish" id="dashPublishBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              <span>Publish Arrangement</span>
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- Recent Uploads Table -->
+        <div class="card recent-exams-card">
+          <div class="card-header-simple">
+            <h3 class="recent-title">Recently Published Arrangements</h3>
+          </div>
+          <div id="recentExamsTable" class="table-container">
+            <p class="empty-state">Loading published exams…</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==============================================
+           SECTION 2: UPLOAD ARRANGEMENT
+      =============================================== -->
+      <section id="section-upload" class="content-section hidden">
+        <div class="page-header">
+          <h1 class="page-title">Upload Seating Arrangement</h1>
+          <p class="page-subtitle">Publish a new seating list for an upcoming examination cycle.</p>
+        </div>
+        <div class="card p-24">
+          <p>Use the <a href="#" onclick="document.querySelector('[data-section=dashboard]').click(); return false;">Dashboard</a> for drag-and-drop file upload with live preview and one-click publishing.</p>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SECTION 3: MANAGE EXAMS
+      =============================================== -->
+      <section id="section-manage" class="content-section hidden">
+        <div class="page-header flex-header">
+          <div>
+            <h1 class="page-title">Manage Published Examinations</h1>
+            <p class="page-subtitle">Inspect student seat rosters, toggle visibility, or delete seating records.</p>
+          </div>
+          <button class="btn-primary-sm" id="refreshExamsBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        
+        <div class="card">
+          <div id="manageExamsTable" class="table-container">
+            <p class="empty-state">Loading exams…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SECTION 4: VIEW REPORTS (ROOM CHARTS & NOTICES)
+      =============================================== -->
+      <section id="section-reports" class="content-section hidden">
+        <div class="page-header">
+          <h1 class="page-title">Room Seating Reports &amp; Door Notices</h1>
+          <p class="page-subtitle">Print room-wise door notices for exam halls and invigilator attendance sheets.</p>
+        </div>
+
+        <div class="card p-20 mb-20">
+          <div class="report-filter-bar">
+            <label for="roomChartExamSelect" class="filter-label">Select Examination:</label>
+            <select id="roomChartExamSelect" class="filter-select">
+              <option value="">— Loading Examinations… —</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="roomCardsContainer" class="room-grid">
+          <p class="empty-state">Select an examination above to view room charts.</p>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           SECTION 5: SETTINGS
+      =============================================== -->
+      <section id="section-settings" class="content-section hidden">
+        <div class="page-header">
+          <h1 class="page-title">Admin Account Settings</h1>
+          <p class="page-subtitle">Manage administrative credentials and security.</p>
+        </div>
+
+        <div class="card settings-card-wrap">
+          <h3 class="card-title-sm">Change Admin Password</h3>
+          <form id="changePasswordForm" class="settings-form">
+            <div class="form-field">
+              <label for="currentPw">Current Password</label>
+              <input type="password" id="currentPw" class="form-input" placeholder="Enter current password" required />
+            </div>
+            <div class="form-field">
+              <label for="newPw">New Password</label>
+              <input type="password" id="newPw" class="form-input" placeholder="At least 6 characters" minlength="6" required />
+            </div>
+            <div class="form-field">
+              <label for="confirmPw">Confirm New Password</label>
+              <input type="password" id="confirmPw" class="form-input" placeholder="Repeat new password" required />
+            </div>
+            <div id="pwResult" class="hidden"></div>
+            <button type="submit" class="btn-primary-sm">Update Password</button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODALS
+  =============================================== -->
+
+  <!-- Modal 1: Exam Seats Inspector -->
+  <div id="examModal" class="modal-backdrop hidden">
+    <div class="modal-box modal-xl">
+      <div class="modal-header-bar">
+        <div class="modal-title-left">
+          <h3 id="modalTitle">Exam Seats</h3>
+        </div>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-action-green" id="btnAddSeat">+ Add Student Seat</button>
+          <button type="button" class="btn-action-gray" id="btnExportModal">⬇ Export CSV</button>
+          <button type="button" class="btn-close-modal" id="modalClose">✕</button>
+        </div>
+      </div>
+      <div class="modal-search-bar">
+        <input type="text" id="modalSearch" class="form-input" placeholder="Search by roll number or student name…" />
+      </div>
+      <div class="modal-table-body" id="modalBody">Loading…</div>
+      <div class="modal-pag-bar" id="modalPagination"></div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Add / Edit Single Seat -->
+  <div id="seatEditModal" class="modal-backdrop hidden">
+    <div class="modal-box modal-md">
+      <div class="modal-header-bar">
+        <h3 id="seatEditModalTitle">Add Seat Record</h3>
+        <button type="button" class="btn-close-modal" id="seatEditModalClose">✕</button>
+      </div>
+      <form id="seatEditForm" class="seat-form">
+        <input type="hidden" id="editSeatId" value="" />
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="editRoll">Roll Number <span class="required">*</span></label>
+            <input type="text" id="editRoll" class="form-input" required placeholder="Enter roll number" />
+          </div>
+          <div class="form-field">
+            <label for="editName">Student Name</label>
+            <input type="text" id="editName" class="form-input" placeholder="Enter student name" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="editBranch">Branch</label>
+            <input type="text" id="editBranch" class="form-input" placeholder="e.g. CSE" />
+          </div>
+          <div class="form-field">
+            <label for="editSemester">Semester</label>
+            <input type="text" id="editSemester" class="form-input" placeholder="e.g. 5" />
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="editRoom">Room Number <span class="required">*</span></label>
+            <input type="text" id="editRoom" class="form-input" required placeholder="e.g. B-204" />
+          </div>
+          <div class="form-field">
+            <label for="editDesk">Desk No</label>
+            <input type="text" id="editDesk" class="form-input" placeholder="e.g. 12" />
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="form-field">
+            <label for="editBlock">Block / Building</label>
+            <input type="text" id="editBlock" class="form-input" placeholder="e.g. Block B" />
+          </div>
+          <div class="form-field">
+            <label for="editFloor">Floor</label>
+            <input type="text" id="editFloor" class="form-input" placeholder="e.g. 2nd Floor" />
+          </div>
+          <div class="form-field">
+            <label for="editRow">Row</label>
+            <input type="text" id="editRow" class="form-input" placeholder="e.g. 05" />
+          </div>
+        </div>
+        <div class="form-buttons-row">
+          <button type="button" class="btn-cancel" id="btnCancelEditSeat">Cancel</button>
+          <button type="submit" class="btn-save" id="btnSaveSeat">Save Seat Allotment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Printable Document Modal (Door Notice & Attendance Sheet) -->
+  <div id="printNoticeModal" class="modal-backdrop hidden">
+    <div class="modal-box modal-xl">
+      <div class="modal-header-bar no-print">
+        <h3 id="printModalTitle">Print Document</h3>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-action-green" id="btnTriggerPrint">🖨️ Print Document</button>
+          <button type="button" class="btn-close-modal" id="printModalClose">✕</button>
+        </div>
+      </div>
+      <div class="modal-table-body print-paper-wrap" id="printDocumentContent"></div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

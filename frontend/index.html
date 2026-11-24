@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIET JAMMU – Examination Seating Arrangement</title>
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="images/miet_logo.jpg" />
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      
+      <!-- Brand Logo & Text -->
+      <a href="/" class="brand-link">
+        <img src="images/miet_logo.jpg" alt="MIET Jammu Logo" class="brand-logo" />
+        <div class="brand-text">
+          <div class="brand-title">MIET JAMMU</div>
+          <div class="brand-sep">|</div>
+          <div class="brand-subtitle">Institute of Engineering &amp; Technology</div>
+        </div>
+      </a>
+
+      <!-- Center Menu Links -->
+      <nav class="nav-menu" id="primaryNavigation" aria-label="Main navigation">
+        <a href="/" class="nav-pill active">Home</a>
+        <a href="#exam-info" class="nav-link" id="navExamInfo">Exam Info</a>
+        <a href="#seating" class="nav-link" id="navSeating">Seating Arrangement</a>
+        <a href="#notices" class="nav-link" id="navNotices">Notices</a>
+        <a href="#contact" class="nav-link" id="navContact">Contact</a>
+      </nav>
+
+      <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open navigation menu" aria-controls="primaryNavigation" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <!-- Right Portal Dropdown -->
+      <div class="nav-actions">
+        <div class="portal-dropdown">
+          <button type="button" class="btn-portal" id="portalDropdownBtn">
+            <svg class="portal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            <span>Student Portal</span>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </button>
+          <div class="dropdown-menu hidden" id="portalMenu">
+            <a href="/" class="dropdown-item active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Student Portal
+            </a>
+            <a href="/admin" class="dropdown-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Admin Portal
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Hero Section with Building Background -->
+  <main class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-container">
+
+      <!-- Left Column: Search & Intro -->
+      <div class="hero-left">
+        <h1 class="hero-heading">
+          Find Your<br>
+          Examination <span class="highlight-yellow">Seat</span>
+        </h1>
+        <p class="hero-desc">
+          Enter your Roll Number to view your exact sitting arrangement for the examination.
+        </p>
+
+        <!-- Exam Selection -->
+        <div class="exam-selector-wrap">
+          <label for="examSelect" class="exam-label">Select Examination:</label>
+          <div class="select-box">
+            <select id="examSelect" class="exam-select">
+              <option value="">— Loading Examinations… —</option>
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Search Bar Form -->
+        <form id="searchForm" class="search-bar-form">
+          <div class="search-bar">
+            <svg class="search-user-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input
+              type="text"
+              id="rollInput"
+              class="search-input"
+              placeholder="Enter Roll Number"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            />
+            <button type="button" class="btn-clear hidden" id="clearRollBtn" title="Clear input">✕</button>
+            <button type="submit" class="btn-find" id="searchBtn">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              <span>Find My Seat</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Recent Searches Chips -->
+        <div id="recentSearches" class="recent-searches hidden"></div>
+
+        <!-- Error Alert -->
+        <div id="errorArea" class="error-container hidden"></div>
+      </div>
+
+      <!-- Right Column: Seating Result Card -->
+      <div class="hero-right">
+        
+        <!-- Live Result Area -->
+        <div id="resultArea" class="result-container">
+          
+          <!-- Default Friendly Preview / Guide Card -->
+          <div class="result-card card-placeholder" id="placeholderCard">
+            <div class="card-status-badge">
+              <div class="check-circle pulse">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Your Seating Arrangement</h3>
+            </div>
+            
+            <div class="roll-banner-placeholder">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Enter your roll number on the left and click <strong>"Find My Seat"</strong> to see your exact seating allotment.</span>
+            </div>
+
+            <!-- Visual grid preview -->
+            <div class="seat-details-grid preview-mode">
+              <div class="detail-box">
+                <div class="detail-icon-wrap"><svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg></div>
+                <div class="detail-content">
+                  <div class="detail-label">Block / Building</div>
+                  <div class="detail-value">—</div>
+                </div>
+              </div>
+              <div class="detail-box">
+                <div class="detail-icon-wrap"><svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"/><path d="M3 20v-5h5v-5h5V5h8"/><path d="M16 9h2M16 13h2"/></svg></div>
+                <div class="detail-content">
+                  <div class="detail-label">Floor</div>
+                  <div class="detail-value">—</div>
+                </div>
+              </div>
+              <div class="detail-box highlight-room">
+                <div class="detail-icon-wrap"><svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V3h16v18"/><path d="M8 21V7l12-2"/><path d="M16 14h.01"/></svg></div>
+                <div class="detail-content">
+                  <div class="detail-label">Room Number</div>
+                  <div class="detail-value room-text">—</div>
+                </div>
+              </div>
+              <div class="detail-box">
+                <div class="detail-icon-wrap"><svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v8h12V4"/><path d="M8 12v8M16 12v8M8 16h8"/></svg></div>
+                <div class="detail-content">
+                  <div class="detail-label">Row</div>
+                  <div class="detail-value">—</div>
+                </div>
+              </div>
+              <div class="detail-box highlight-desk">
+                <div class="detail-icon-wrap"><svg class="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18M5 8v12m14-12v12M3 20h18"/><path d="M8 8V5h8v3"/></svg></div>
+                <div class="detail-content">
+                  <div class="detail-label">Desk</div>
+                  <div class="detail-value desk-text">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Directions & Session Preview -->
+            <div class="card-footer-strip">
+              <div class="footer-strip-item">
+                <svg class="strip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                </svg>
+                <div>
+                  <div class="strip-label">Room Directions</div>
+                  <div class="strip-value">Select exam &amp; search your roll number</div>
+                </div>
+              </div>
+              <div class="footer-strip-item">
+                <svg class="strip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <div>
+                  <div class="strip-label">Exam Session</div>
+                  <div class="strip-value" id="previewExamDate">Active Examination Session</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Informational Modals (Exam Info, Notices, Contact) -->
+  <div id="infoModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Information</h3>
+        <button type="button" class="modal-close" id="modalCloseBtn">✕</button>
+      </div>
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="studentToast" class="student-toast hidden"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <img src="images/miet_logo.jpg" alt="MIET Logo" class="footer-logo" />
+        <div>
+          <div class="footer-title">Model Institute of Engineering &amp; Technology (MIET), Jammu</div>
+          <div class="footer-sub">Autonomous College Permanently Affiliated to the University of Jammu • NAAC 'A' Grade Accredited</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <p>© 2024 MIET Jammu Examination Cell &nbsp;|&nbsp; Kot Bhalwal, Jammu - 181122</p>
+        <p class="footer-links">
+          <a href="/admin">Admin Access</a> • 
+          <a href="tel:+911912623110">+91-191-2623110</a> • 
+          <a href="mailto:examcell@mietjammu.in">examcell@mietjammu.in</a>
+        </p>
+        <p class="developer-credit">Developed by <span>Himanshu Chib</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/student.js"></script>
+</body>
+</html>
