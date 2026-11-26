@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const XLSX = require('xlsx');
+const readSheet = require('read-excel-file/node').readSheet;
+const crypto = require('crypto');
+const { parse } = require('csv-parse/sync');
 const path = require('path');
 const fs = require('fs');
 const { getDb } = require('../database');
@@ -15,19 +17,18 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const timestamp = Date.now();
     const ext = path.extname(file.originalname);
-    cb(null, `seating_${timestamp}${ext}`);
+    cb(null, `seating_${crypto.randomUUID()}${ext}`);
   }
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowed = ['.xlsx', '.xls', '.csv'];
+  const allowed = ['.xlsx', '.csv'];
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error('Only Excel (.xlsx, .xls) and CSV files are allowed.'), false);
+    cb(new Error('Only Excel (.xlsx) and CSV files are allowed.'), false);
   }
 };
 
@@ -38,22 +39,54 @@ const upload = multer({
 });
 
 // Upload seating file
-router.post('/', verifyToken, upload.single('file'), (req, res) => {
+router.post('/', verifyToken, upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded.' });
   }
 
-  const { exam_name, exam_date } = req.body;
-  if (!exam_name) {
+  const { exam_name, exam_date } = req.body || {};
+  if (typeof exam_name !== 'string' || !exam_name.trim() || exam_name.length > 150) {
     fs.unlinkSync(req.file.path);
-    return res.status(400).json({ error: 'Exam name is required.' });
+    return res.status(400).json({ error: 'An exam name of no more than 150 characters is required.' });
+  }
+  if (exam_date !== undefined && exam_date !== '' && (typeof exam_date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(exam_date) || Number.isNaN(Date.parse(`${exam_date}T00:00:00Z`)) || new Date(`${exam_date}T00:00:00Z`).toISOString().slice(0, 10) !== exam_date)) {
+    fs.unlinkSync(req.file.path);
+    return res.status(400).json({ error: 'Exam date must be a valid date in YYYY-MM-DD format.' });
   }
 
   try {
-    const workbook = XLSX.readFile(req.file.path);
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rawData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    const extension = path.extname(req.file.originalname).toLowerCase();
+    let rawData;
+    try {
+      if (extension === '.csv') {
+        rawData = parse(fs.readFileSync(req.file.path, 'utf8'), {
+          columns: headers => headers.map(header => String(header).trim()),
+          bom: true,
+          skip_empty_lines: true,
+          trim: true,
+          max_record_size: 1024 * 1024
+        });
+      } else {
+        const sheetRows = await readSheet(req.file.path);
+        if (!sheetRows.length || sheetRows.length > 10001) {
+          throw new Error('The worksheet exceeds supported size limits.');
+        }
+        const headers = sheetRows[0].map(value => String(value ?? '').trim());
+        if (headers.length > 100) throw new Error('The worksheet exceeds supported size limits.');
+        rawData = sheetRows.slice(1).map(row => Object.fromEntries(
+          headers.map((header, index) => [header, row[index] instanceof Date ? row[index].toISOString() : String(row[index] ?? '')])
+        )).filter(record => Object.values(record).some(value => value.trim() !== ''));
+      }
+    } catch (fileError) {
+      if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      console.warn('Rejected invalid seating upload:', fileError.message);
+      return res.status(400).json({ error: 'The uploaded file is invalid or exceeds supported limits.' });
+    }
+
+    if (rawData.length > 10000) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Uploads are limited to 10,000 student records.' });
+    }
 
     if (rawData.length === 0) {
       fs.unlinkSync(req.file.path);
@@ -68,6 +101,11 @@ router.post('/', verifyToken, upload.single('file'), (req, res) => {
       });
       return normalized;
     });
+
+    if (normalizedData.some(row => Object.values(row).some(value => value.length > 500))) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'A cell exceeds the 500 character limit.' });
+    }
 
     // Detect columns flexibly
     const sample = normalizedData[0];
@@ -140,7 +178,7 @@ router.post('/', verifyToken, upload.single('file'), (req, res) => {
   } catch (err) {
     if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     console.error('Upload error:', err);
-    res.status(500).json({ error: 'Failed to process file: ' + err.message });
+    res.status(500).json({ error: 'The seating upload could not be completed.' });
   }
 });
 

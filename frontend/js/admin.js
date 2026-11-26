@@ -2,7 +2,7 @@
 const API_BASE = '/api';
 
 // ---- State ----
-let authToken = localStorage.getItem('miet_admin_token');
+let authToken = true; // The session token is held in an HttpOnly cookie.
 let currentSection = 'dashboard';
 let modalExamId = null;
 let modalExamName = '';
@@ -114,8 +114,7 @@ loginForm.addEventListener('submit', async (e) => {
     if (!res.ok) {
       showLoginError(data.error || 'Invalid credentials.');
     } else {
-      authToken = data.token;
-      localStorage.setItem('miet_admin_token', authToken);
+      authToken = true;
       if (adminNameEl) adminNameEl.textContent = data.username || username;
       showDashboard();
     }
@@ -144,8 +143,8 @@ sidebarLogout.addEventListener('click', (e) => { e.preventDefault(); doLogout();
 dropLogout.addEventListener('click', (e) => { e.preventDefault(); doLogout(); });
 
 function doLogout() {
+  fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
   authToken = null;
-  localStorage.removeItem('miet_admin_token');
   showLogin();
 }
 
@@ -157,8 +156,6 @@ function showLogin() {
 function showDashboard() {
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
-  const stored = localStorage.getItem('miet_admin_token');
-  if (stored) authToken = stored;
   loadSection('dashboard');
 }
 
@@ -192,6 +189,12 @@ dropChangePw.addEventListener('click', (e) => {
   adminDropdownMenu.classList.add('hidden');
   setActiveSection('settings');
   loadSection('settings');
+});
+
+document.getElementById('uploadDashboardLink')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  setActiveSection('dashboard');
+  loadSection('upload');
 });
 
 // ---- Navigation ----
@@ -241,12 +244,10 @@ function loadSection(section) {
 // ---- API Helper ----
 async function apiFetch(url, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...options.headers };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   const res = await fetch(url, { ...options, headers });
 
   if (res.status === 401) {
     authToken = null;
-    localStorage.removeItem('miet_admin_token');
     showLogin();
     throw new Error('Session expired. Please log in again.');
   }
@@ -420,7 +421,6 @@ dashPublishBtn.addEventListener('click', async () => {
 
     const res = await fetch(`${API_BASE}/upload`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` },
       body: formData
     });
     const data = await res.json();
@@ -478,7 +478,7 @@ function buildExamTable(exams, showActions) {
   const rows = exams.map(e => `
     <tr>
       <td><strong>${escHtml(e.exam_name)}</strong></td>
-      <td>${e.exam_date ? formatDate(e.exam_date) : '—'}</td>
+      <td>${e.exam_date ? escHtml(formatDate(e.exam_date)) : '—'}</td>
       <td><strong>${(e.student_count || 0).toLocaleString()}</strong></td>
       <td>${escHtml(e.uploaded_by || 'Admin')}</td>
       <td>${formatDateTime(e.uploaded_at)}</td>
@@ -635,7 +635,7 @@ async function loadModalSeats() {
         <td>${escHtml(s.block || '—')}</td>
         <td>
           <div style="display:flex;gap:4px;">
-            <button type="button" class="btn-tbl-action btn-edit-seat" data-seat='${JSON.stringify(s).replace(/'/g, "&apos;")}'>Edit</button>
+            <button type="button" class="btn-tbl-action btn-edit-seat" data-seat="${escHtml(JSON.stringify(s))}">Edit</button>
             <button type="button" class="btn-tbl-action btn-del-tbl btn-del-seat" data-id="${s.id}" data-roll="${escHtml(s.roll_number)}">✕</button>
           </div>
         </td>
@@ -889,7 +889,7 @@ async function openDoorNotice(examId, roomNo) {
 
         <div class="paper-meta-grid">
           <div>Examination: <strong>${escHtml(exam.exam_name)}</strong></div>
-          <div>Date: <strong>${exam.exam_date ? formatDate(exam.exam_date) : 'Scheduled Date'}</strong></div>
+          <div>Date: <strong>${exam.exam_date ? escHtml(formatDate(exam.exam_date)) : 'Scheduled Date'}</strong></div>
           <div>Room Number: <strong style="font-size:1.15rem;color:#1d4ed8;">Room ${escHtml(roomNo)}</strong></div>
           <div>Floor: <strong>${escHtml(seats[0]?.floor_no || 'Ground Floor')}</strong></div>
           <div>Block: <strong>${escHtml(seats[0]?.block || 'Block B')}</strong></div>
@@ -971,7 +971,7 @@ async function openAttendanceSheet(examId, roomNo) {
 
         <div class="paper-meta-grid">
           <div>Examination: <strong>${escHtml(exam.exam_name)}</strong></div>
-          <div>Date: <strong>${exam.exam_date ? formatDate(exam.exam_date) : '—'}</strong></div>
+          <div>Date: <strong>${exam.exam_date ? escHtml(formatDate(exam.exam_date)) : '—'}</strong></div>
           <div>Room No: <strong>Room ${escHtml(roomNo)} (${escHtml(seats[0]?.floor_no || '—')})</strong></div>
           <div>Total Allotted: <strong>${seats.length}</strong></div>
           <div>Present: ________</div>
@@ -1050,7 +1050,9 @@ document.getElementById('changePasswordForm').addEventListener('submit', async (
       result.style.marginTop = '10px';
       result.textContent = 'Password changed successfully.';
       document.getElementById('changePasswordForm').reset();
-      showToast('Admin password updated successfully.');
+      authToken = null;
+      showLogin();
+      showLoginError('Password changed. Please sign in again.');
     }
     result.classList.remove('hidden');
   } catch (err) {

@@ -1,25 +1,43 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
+
+// Security headers. Inline styles are used by the existing admin UI; scripts stay same-origin only.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      imgSrc: ["'self'", 'data:'],
+      objectSrc: ["'none'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
+    }
+  },
+  strictTransportSecurity: process.env.NODE_ENV === 'production' ? undefined : false
+}));
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// The frontend is served by this same origin. Do not enable cross-origin API access by default.
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
-
-// Rate limiting for student lookup
-const lookupLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50,
-  message: { error: 'Too many requests, please try again after 15 minutes.' }
-});
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -29,8 +47,11 @@ const adminRoutes = require('./routes/admin');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/seating', lookupLimiter, seatingRoutes);
+app.use('/api/seating', seatingRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Initialize the database during startup so unsafe legacy credentials are caught immediately.
+require('./database').getDb();
 
 // Serve frontend pages
 app.get('/', (req, res) => {
@@ -43,12 +64,13 @@ app.get('/admin', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  console.error('Request failed:', err);
+  const status = err.status && err.status < 500 ? err.status : 500;
+  res.status(status).json({ error: status === 500 ? 'Internal server error.' : err.message });
 });
 
-app.listen(PORT, () => {
-  console.log(`MIET Seating Server running at http://localhost:${PORT}`);
-  console.log(`Student Portal: http://localhost:${PORT}`);
-  console.log(`Admin Portal:   http://localhost:${PORT}/admin`);
+app.listen(PORT, HOST, () => {
+  console.log(`MIET Seating Server running at http://${HOST}:${PORT}`);
+  console.log(`Student Portal: http://${HOST}:${PORT}`);
+  console.log(`Admin Portal:   http://${HOST}:${PORT}/admin`);
 });

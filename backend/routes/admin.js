@@ -163,17 +163,15 @@ router.get('/exams/:id/export', verifyToken, (req, res) => {
   `).all(id);
 
   const headers = ['Roll No', 'Student Name', 'Branch', 'Semester', 'Room No', 'Floor', 'Row', 'Desk', 'Block'];
+  const csvField = value => {
+    let text = String(value ?? '');
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  };
   const rows = seats.map(s => [
-    `"${s.roll_number || ''}"`,
-    `"${(s.student_name || '').replace(/"/g, '""')}"`,
-    `"${s.branch || ''}"`,
-    `"${s.semester || ''}"`,
-    `"${s.room_no || ''}"`,
-    `"${s.floor_no || ''}"`,
-    `"${s.row_no || ''}"`,
-    `"${s.desk_no || ''}"`,
-    `"${s.block || ''}"`
-  ].join(','));
+    s.roll_number, s.student_name, s.branch, s.semester, s.room_no,
+    s.floor_no, s.row_no, s.desk_no, s.block
+  ].map(csvField).join(','));
 
   const csv = [headers.join(','), ...rows].join('\r\n');
   const filename = `seating_${exam.exam_name.replace(/[^a-zA-Z0-9_-]/g, '_')}.csv`;

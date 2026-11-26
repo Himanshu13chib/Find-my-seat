@@ -51,7 +51,7 @@
         <div id="loginError" class="login-error hidden"></div>
         <button type="submit" class="btn-signin" id="loginBtn">Sign In to Dashboard</button>
       </form>
-      <div class="login-footer-hint">Default Credentials: <code>admin</code> / <code>admin123</code></div>
+      <div class="login-footer-hint">Sign in with credentials provided by your system administrator.</div>
     </div>
   </div>
 
@@ -224,9 +224,9 @@
                   </svg>
                 </div>
                 <h3 class="zone-title">Upload Seating Arrangement File</h3>
-                <p class="zone-desc">Drag and drop your Excel or CSV file here, or <span class="browse-link" id="dashBrowseLink">choose a file</span></p>
+                <p class="zone-desc">Drag and drop your .xlsx or CSV file here, or <span class="browse-link" id="dashBrowseLink">choose a file</span></p>
                 
-                <input type="file" id="dashFileInput" accept=".xlsx,.xls,.csv" class="hidden-file-input" />
+                <input type="file" id="dashFileInput" accept=".xlsx,.csv" class="hidden-file-input" />
                 
                 <button type="button" class="btn-choose-file" id="dashChooseFileBtn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -235,7 +235,7 @@
                   Choose File
                 </button>
 
-                <div class="zone-file-type">Supports: .xlsx, .xls, .csv</div>
+                <div class="zone-file-type">Supports: .xlsx, .csv</div>
 
                 <div id="dashFileSelected" class="file-chosen-badge hidden">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
@@ -329,7 +329,7 @@
           <p class="page-subtitle">Publish a new seating list for an upcoming examination cycle.</p>
         </div>
         <div class="card p-24">
-          <p>Use the <a href="#" onclick="document.querySelector('[data-section=dashboard]').click(); return false;">Dashboard</a> for drag-and-drop file upload with live preview and one-click publishing.</p>
+          <p>Use the <a href="#" id="uploadDashboardLink">Dashboard</a> for drag-and-drop file upload with live preview and one-click publishing.</p>
         </div>
       </section>
 
@@ -396,7 +396,7 @@
             </div>
             <div class="form-field">
               <label for="newPw">New Password</label>
-              <input type="password" id="newPw" class="form-input" placeholder="At least 6 characters" minlength="6" required />
+            <input type="password" id="newPw" class="form-input" placeholder="At least 12 characters" minlength="12" required />
             </div>
             <div class="form-field">
               <label for="confirmPw">Confirm New Password</label>

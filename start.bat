@@ -55,15 +55,14 @@ if not exist "node_modules\better-sqlite3\prebuilds\win32-x64.node" (
     )
 )
 
-:: Reuse an existing MIET server, checking IPv6 directly to avoid the other
-:: local app that may own localhost:3000 over IPv4.
+:: Reuse an existing MIET server on the loopback address used by server.js.
 set "PORT=3000"
 set "RUN_SERVER=1"
 :find_existing
-curl.exe -g -fsS --max-time 1 "http://[::1]:!PORT!/" 2>nul | findstr /I /C:"Examination Seating Arrangement" >nul
+curl.exe -fsS --max-time 1 "http://127.0.0.1:!PORT!/" 2>nul | findstr /I /C:"Examination Seating Arrangement" >nul
 if not errorlevel 1 (
     set "RUN_SERVER=0"
-    set "SITE_URL=http://[::1]:!PORT!"
+    set "SITE_URL=http://127.0.0.1:!PORT!"
     goto :launch_site
 )
 if !PORT! GEQ 3010 goto :find_available
@@ -83,7 +82,7 @@ if not errorlevel 1 (
     )
     goto :check_port
 )
-set "SITE_URL=http://[::1]:!PORT!"
+set "SITE_URL=http://127.0.0.1:!PORT!"
 set "RUN_SERVER=1"
 
 :launch_site
@@ -91,7 +90,7 @@ echo.
 echo =======================================================
 echo   Student Portal: !SITE_URL!
 echo   Admin Portal:   !SITE_URL!/admin
-echo   Default Admin:  admin / admin123
+echo   Admin login: configure JWT_SECRET, ADMIN_USERNAME, and ADMIN_INITIAL_PASSWORD first
 echo =======================================================
 echo.
 

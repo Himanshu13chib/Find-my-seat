@@ -20,7 +20,7 @@ A full-stack web application for managing and looking up exam seating arrangemen
 ### 🛡️ Admin Portal (`/admin`)
 - **Secure Authentication**: JWT-based authentication with bcrypt-hashed passwords.
 - **Seating Uploads**:
-  - Drag & drop or file browse for Excel (`.xlsx`, `.xls`) or CSV.
+  - Drag & drop or file browse for Excel (`.xlsx`) or CSV.
   - Automatic, flexible column name detection (case-insensitive headers).
   - High-performance SQLite batch insertion in transactions.
 - **Room Seating Charts & Door Notices**:
@@ -43,7 +43,7 @@ A full-stack web application for managing and looking up exam seating arrangemen
 |---|---|
 | **Backend** | Node.js, Express.js |
 | **Database** | SQLite (via `better-sqlite3` with WAL mode & indexes) |
-| **Parsing** | `xlsx` library (supports Excel `.xlsx`, `.xls` and CSV) |
+| **Parsing** | `read-excel-file` (`.xlsx`) and `csv-parse` (CSV) |
 | **Auth & Security** | JWT (`jsonwebtoken`), `bcryptjs`, `express-rate-limit` |
 | **Frontend** | Modern Vanilla HTML5, CSS3 (CSS Variables, Flexbox/Grid, Print Styles), ES6+ JavaScript |
 
@@ -51,36 +51,47 @@ A full-stack web application for managing and looking up exam seating arrangemen
 
 ## Quick Start (Windows)
 
-### Option 1: Double-click `start.bat`
-Simply double-click the **`start.bat`** script in the project root folder. It will:
+### Option 1: Configure credentials, then run `start.bat`
+In PowerShell, first set the required credentials using the setup instructions below. From that same PowerShell window, run `.\start.bat`. The script will:
 1. Detect Node.js (including local installations).
 2. Install dependencies automatically if not present.
-3. Start the server on `http://localhost:3000`.
+3. Start the server on `http://127.0.0.1:3000`.
 4. Open the Student Portal in your default web browser.
 
 ---
 
 ### Option 2: Command Line Setup
 
-#### 1. Install Dependencies
+#### 1. Configure startup credentials
+Set `JWT_SECRET`, `ADMIN_USERNAME`, and `ADMIN_INITIAL_PASSWORD` in the same shell used to start the app. Follow the secure setup instructions below.
+
+#### 2. Install Dependencies
 ```bash
 cd backend
 npm install
 ```
 
-#### 2. Start the Server
+#### 3. Start the Server
 ```bash
 npm start
 ```
 
 Open:
-- **Student Portal**: [http://localhost:3000](http://localhost:3000)
-- **Admin Portal**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **Student Portal**: [http://127.0.0.1:3000](http://127.0.0.1:3000)
+- **Admin Portal**: [http://127.0.0.1:3000/admin](http://127.0.0.1:3000/admin)
 
-#### Default Admin Credentials
-- **Username**: `admin`
-- **Password**: `admin123`
-- Change the default password after your first sign-in. Set `JWT_SECRET` in the server environment to keep sessions valid across restarts.
+#### Secure first-time setup (PowerShell)
+Set a private signing key and initial administrator credentials before starting the server. Use a unique password of at least 12 characters and keep these values out of source control:
+```powershell
+$env:JWT_SECRET = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+$env:ADMIN_USERNAME = "admin"
+$securePassword = Read-Host "Choose an initial admin password" -AsSecureString
+$env:ADMIN_INITIAL_PASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
+# From the project root, run .\start.bat; from backend, run npm start.
+```
+The initial admin is created only when the database has no admin accounts. If the existing database still has the old `admin / admin123` account, startup rotates it to the password configured above. The initial password is not stored in the project. Admin sessions use an HttpOnly, same-site cookie, expire after one hour, and are revoked when the password changes. The server binds to `127.0.0.1` by default. For production, put it behind an HTTPS reverse proxy, keep the app bound to loopback, and set `NODE_ENV=production` so the cookie is marked Secure and HTTPS response policies are enabled. Do not expose the Express process directly to the internet.
+
+Public student seat lookup is disabled by default. It returns the matching student name and seat details to anyone who knows a roll number, so enable it only after the Exam Cell approves this publication model. Set `PUBLIC_SEAT_LOOKUP_ENABLED=true` in the server environment to enable it.
 
 ---
 
@@ -91,7 +102,7 @@ No student records are included. Use **Download Blank CSV Template** in the Admi
 
 ## File Format Specifications
 
-Uploaded Excel or CSV files must contain at minimum:
+Uploaded `.xlsx` or CSV files must contain at minimum. Legacy `.xls` files are not accepted:
 
 | Column | Required | Example Values |
 |---|---|---|
@@ -111,19 +122,19 @@ Uploaded Excel or CSV files must contain at minimum:
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| `POST` | `/api/auth/login` | No | Authenticate admin |
-| `POST` | `/api/auth/change-password` | Bearer Token | Update password |
+| `POST` | `/api/auth/login` | No (same-origin only; rate limited) | Authenticate admin |
+| `POST` | `/api/auth/change-password` | Admin session cookie | Update password |
 | `GET` | `/api/seating/exams` | No | List active exams for dropdown |
 | `GET` | `/api/seating/lookup?roll=&exam_id=` | No (Rate limited) | Student seat query |
-| `POST` | `/api/upload` | Bearer Token | Upload Excel/CSV seating file |
-| `GET` | `/api/admin/exams` | Bearer Token | List all exams with counts |
-| `GET` | `/api/admin/exams/:id/seats` | Bearer Token | Paginated seat list with search |
-| `POST` | `/api/admin/exams/:id/seats` | Bearer Token | Add an individual seat |
-| `PUT` | `/api/admin/seats/:seatId` | Bearer Token | Update an individual seat |
-| `DELETE` | `/api/admin/seats/:seatId` | Bearer Token | Delete an individual seat |
-| `GET` | `/api/admin/exams/:id/rooms` | Bearer Token | Room summary & student count |
-| `GET` | `/api/admin/exams/:id/rooms/:room_no` | Bearer Token | Students assigned to specific room |
-| `GET` | `/api/admin/exams/:id/export` | Bearer Token | Export exam seats as CSV |
-| `PATCH` | `/api/admin/exams/:id/toggle` | Bearer Token | Toggle active / inactive status |
-| `DELETE` | `/api/admin/exams/:id` | Bearer Token | Delete exam & cascade delete seats |
-| `GET` | `/api/admin/stats` | Bearer Token | Dashboard statistics |
+| `POST` | `/api/upload` | Admin session cookie | Upload Excel/CSV seating file |
+| `GET` | `/api/admin/exams` | Admin session cookie | List all exams with counts |
+| `GET` | `/api/admin/exams/:id/seats` | Admin session cookie | Paginated seat list with search |
+| `POST` | `/api/admin/exams/:id/seats` | Admin session cookie | Add an individual seat |
+| `PUT` | `/api/admin/seats/:seatId` | Admin session cookie | Update an individual seat |
+| `DELETE` | `/api/admin/seats/:seatId` | Admin session cookie | Delete an individual seat |
+| `GET` | `/api/admin/exams/:id/rooms` | Admin session cookie | Room summary & student count |
+| `GET` | `/api/admin/exams/:id/rooms/:room_no` | Admin session cookie | Students assigned to specific room |
+| `GET` | `/api/admin/exams/:id/export` | Admin session cookie | Export exam seats as CSV |
+| `PATCH` | `/api/admin/exams/:id/toggle` | Admin session cookie | Toggle active / inactive status |
+| `DELETE` | `/api/admin/exams/:id` | Admin session cookie | Delete exam & cascade delete seats |
+| `GET` | `/api/admin/stats` | Admin session cookie | Dashboard statistics |

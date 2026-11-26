@@ -7,4 +7,5 @@
 **/.env.*
 !**/.env.example
 npm-debug.log*
+*.log
 .DS_Store

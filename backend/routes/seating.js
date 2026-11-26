@@ -1,13 +1,29 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { getDb } = require('../database');
+const lookupLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many seat lookups. Try again in 15 minutes.' }
+});
+const publicLookupEnabled = process.env.PUBLIC_SEAT_LOOKUP_ENABLED === 'true';
 
 // Lookup seating by roll number
-router.get('/lookup', (req, res) => {
+router.get('/lookup', lookupLimiter, (req, res) => {
+  if (!publicLookupEnabled) {
+    return res.status(503).json({ error: 'Student seat lookup has not been enabled by the institution.' });
+  }
+
   const { roll, exam_id } = req.query;
 
-  if (!roll || roll.trim() === '') {
+  if (typeof roll !== 'string' || roll.trim() === '' || roll.length > 64) {
     return res.status(400).json({ error: 'Roll number is required.' });
+  }
+  if (exam_id !== undefined && (typeof exam_id !== 'string' || !/^\d{1,10}$/.test(exam_id))) {
+    return res.status(400).json({ error: 'Invalid examination selection.' });
   }
 
   const db = getDb();
@@ -20,7 +36,7 @@ router.get('/lookup', (req, res) => {
       SELECT s.*, e.exam_name, e.exam_date
       FROM seating s
       JOIN exams e ON s.exam_id = e.id
-      WHERE s.roll_number = ? AND s.exam_id = ?
+      WHERE s.roll_number = ? AND s.exam_id = ? AND e.is_active = 1
     `;
     params = [rollUpper, exam_id];
   } else {
@@ -41,7 +57,6 @@ router.get('/lookup', (req, res) => {
   if (!result) {
     return res.status(404).json({
       error: 'No seating arrangement found for this roll number.',
-      roll: rollUpper
     });
   }
 
